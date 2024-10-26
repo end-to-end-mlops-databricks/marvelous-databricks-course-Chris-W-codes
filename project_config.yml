@@ -1,2 +1,3 @@
-catalog_name: `dbw-dplabdlz-dev-uks-01`
-schema_name: chris_training
+dataset_location: /Volumes/dbw-dplabdlz-dev-uks-01/chris_training/sample_data/twitter_sentiment.csv
+train_pc: 0.8
+test_pc: 0.2

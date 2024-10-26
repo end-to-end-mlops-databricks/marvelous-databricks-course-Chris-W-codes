@@ -6,40 +6,51 @@
 
 import pandas as pd
 import logging
-import sys
+import yaml
 
 # COMMAND ----------
 
-sys.path.append('/Workspace/Users/chris.wroe@fabledata.com/marvelous-databricks-course-Chris-W-codes/sentiment')
-from Pre_processing import PreProcess
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # COMMAND ----------
 
-df = load_data("/Volumes/dbw-dplabdlz-dev-uks-01/chris_training/sample_data/twitter_sentiment.csv")
-logging.info(f"Data has loaded")
+with open('project_config.yml', 'r') as file:
+    config = yaml.safe_load(file)
+
+print(yaml.dump(config, default_flow_style=False))
 
 # COMMAND ----------
 
-#We need to save some parameters in a config file
-#We need to include some unit tests
-#We need to do some logging
-#Need a main.py to import the functions and run the code
-#Every class and function should have a doc string
+# MAGIC %run  "/Users/chris.wroe@fabledata.com/marvelous-databricks-course-Chris-W-codes/Pre_processing"
 
 # COMMAND ----------
 
-df2 = append_columns(df)
-df3 = filter_df(df2)
-train_df,test_df = test_train_split(df3)
-test_df_cleaned = clean_df(test_df)
-train_df_cleaned = clean_df(train_df)
-test_df_tokenized = tokenize_df(test_df_cleaned)
-train_df_tokenized = tokenize_df(train_df_cleaned)
-test_df_no_stopwords = remove_stop_words(test_df_tokenized)
-train_df_no_stopwords = remove_stop_words(train_df_tokenized)
-train_df_hashed = hash_df(train_df_no_stopwords)
-test_df_hashed = hash_df(test_df_no_stopwords)
-train_df_vector,test_df_vector = idf_df(train_df_hashed,test_df_hashed)
-train_df_final = finalise_df(train_df_vector)
-test_df_final = finalise_df(test_df_vector)
+preprocessor = PreProcess()
+logger.info("PreProcessor initialized.")
+
+# COMMAND ----------
+
+df = preprocessor.load_data(config['dataset_location'])
+logger.info("Data Loaded")
+
+# COMMAND ----------
+
+df2 = preprocessor.append_headers(df)
+df3 = preprocessor.filter_df(df2)
+train_df,test_df =  preprocessor.test_train_split(df3,config['train_pc'],config['test_pc'])
+logger.info("Data Split with train at "+str(config['train_pc'])+" and test at "+str(config['test_pc']))
+test_df_cleaned =  preprocessor.clean_df(test_df)
+train_df_cleaned =  preprocessor.clean_df(train_df)
+test_df_tokenized =  preprocessor.tokenize_df(test_df_cleaned)
+train_df_tokenized =  preprocessor.tokenize_df(train_df_cleaned)
+test_df_no_stopwords =  preprocessor.remove_stop_words(test_df_tokenized)
+train_df_no_stopwords =  preprocessor.remove_stop_words(train_df_tokenized)
+logger.info("Data Cleaned")
+train_df_hashed =  preprocessor.hash_df(train_df_no_stopwords)
+test_df_hashed = preprocessor.hash_df(test_df_no_stopwords)
+train_df_vector,test_df_vector = preprocessor.idf_df(train_df_hashed,test_df_hashed)
+train_df_final =  preprocessor.finalise_df(train_df_vector)
+test_df_final =  preprocessor.finalise_df(test_df_vector)
 train_df_final.limit(10).show()
+logger.info("Data Vectorized")
