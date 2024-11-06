@@ -16,9 +16,10 @@ from pyspark.ml.feature import HashingTF, IDF
 class PreProcess:
     #Contains various functions to prepare the data for modelling
     def load_data(self,filepath):
-         #Low the data from the filepath
+         #Load the data from the filepath
         df_out = spark.read.csv(filepath,header = False)
-        return df_out
+        df_out_2 = df_out.withColumn("_c0", col("_c0").cast("integer"))
+        return df_out_2
 
     def append_headers(self,df):
         #Give the dataframe some column headers
@@ -72,3 +73,7 @@ class PreProcess:
         #Finalise the datasets by removing all the columns we don't need
         df_out = df.select("target","features")
         return(df_out)
+    
+    def save_to_catalog(self,df,location):
+        df.write.format("delta").mode=("overwrite").saveAsTable(location)
+
