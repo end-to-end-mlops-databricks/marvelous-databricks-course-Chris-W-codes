@@ -15,25 +15,18 @@ from pyspark.ml.feature import HashingTF, IDF
 
 class PreProcess:
     #Contains various functions to prepare the data for modelling
-    def load_data(self,filepath):
-         #Load the data from the filepath
-        df_out = spark.read.csv(filepath,header = False)
-        df_out_2 = df_out.withColumn("_c0", col("_c0").cast("integer"))
-        return df_out_2
 
-    def append_headers(self,df):
-        #Give the dataframe some column headers
-        column_names = ["target", "id", "date", "flag", "user", "text"]
-        df_out = df.toDF(*column_names)
+    def load_data(self,data_location):
+        df_out = spark.table(data_location)
         return df_out
 
-    def filter_df(self,df):
+    def filter_data(self,df):
         #Filter out the columns we need
-        df_out = df.select("target","text")
+        df_out = df[["sentiment","text"]].orderBy(rand()).limit(10000)
         return df_out
 
     def test_train_split(self,df,train_pc,test_pc):
-        #Do a test train split, at 80/20
+        #Do a test train split, based on input parameters
         train_df,test_df = df.randomSplit([train_pc,test_pc])
         return(train_df,test_df)
 
@@ -67,13 +60,10 @@ class PreProcess:
         idf_model = idf.fit(train_df)
         train_df_out = idf_model.transform(train_df)
         test_df_out = idf_model.transform(test_df)
-        return(train_df_out,test_df_out)
+        return(idf_model,train_df_out,test_df_out)
 
     def finalise_df(self,df):
         #Finalise the datasets by removing all the columns we don't need
-        df_out = df.select("target","features")
+        df_out = df.select("sentiment","features")
         return(df_out)
-    
-    def save_to_catalog(self,df,location):
-        df.write.format("delta").mode=("overwrite").saveAsTable(location)
 

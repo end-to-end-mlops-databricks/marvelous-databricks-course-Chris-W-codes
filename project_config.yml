@@ -1,3 +1,4 @@
-dataset_location: /Volumes/dbw-dplabdlz-dev-uks-01/chris_training/sample_data/twitter_sentiment.csv
+dataset_location: mlops_students.chriswroe8.twitter_sentiment
 train_pc: 0.8
 test_pc: 0.2
+max_Iter: 10
