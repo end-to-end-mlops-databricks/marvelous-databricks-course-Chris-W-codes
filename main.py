@@ -154,10 +154,6 @@ wrapped_model = sentimentmodelwrapper(trained_model)
 
 # COMMAND ----------
 
-predictions = wrapped_model.predict(trained_model,X_train[:4])
-
-# COMMAND ----------
-
 mlflow.set_experiment(experiment_name="/Users/chris.wroe8@gmail.com/sentiment_analysis_wrapped")
 
 with mlflow.start_run(

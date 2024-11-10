@@ -33,13 +33,13 @@ class PreProcess:
     def clean_df(self,df):
         #Cleans the text column of the data
         #Remove punctation and numbers, make lower case and the trim
-        df_out = train_df.withColumn("text",trim(lower(regexp_replace(col("text"), "[^a-zA-Z\\s]", ""))))
+        df_out = df.withColumn("text",trim(lower(regexp_replace(col("text"), "[^a-zA-Z\\s]", ""))))
         return(df_out)
 
     def tokenize_df(self,df):
         #Build a tokenizer from the text column
         tokenizer = Tokenizer(inputCol="text", outputCol="tokens")
-        df_out = tokenizer.transform(train_df_cleaned)
+        df_out = tokenizer.transform(df)
         return(df_out)
 
     def remove_stop_words(self,df):
